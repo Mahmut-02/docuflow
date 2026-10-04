@@ -34,7 +34,7 @@ class ConversionController extends Controller
             'type' => 'word_to_pdf',
             'status' => 'pending',
         ]);
-
+        ConvertWordToPdfJob::dispatch($conversion);
         // 4. Kullanıcıya başarı mesajı dön
         return redirect()->back()->with('success', 'Dosyanız başarıyla yüklendi ve sıraya alındı! ID: #' . $conversion->id);
     }
