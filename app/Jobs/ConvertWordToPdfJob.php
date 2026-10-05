@@ -1,17 +1,22 @@
 <?php
 
 namespace App\Jobs;
-
 use App\Models\Conversion;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class ConvertWordToPdfJob implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use Queueable;
+
+    // İşlem 60 saniyeyi geçerse kes ve failed (başarısız) olarak işaretle
+    public $timeout = 60;
 
     // Görevin işleyeceği kayıt
     public function __construct(public Conversion $conversion)
@@ -37,7 +42,7 @@ class ConvertWordToPdfJob implements ShouldQueue
         // 2. LibreOffice headless komutunu hazırla
         // Bu komut arayüz açmadan terminalden word'ü pdf'e çevirir
         $process = new Process([
-            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+            config('services.libreoffice.path'),
             '-env:UserInstallation=file:///tmp/LibreOffice_Conversion_' . $this->conversion->id, // <-- Mac'te kilitlenmeyi önleyen sihirli satır
             '--headless',
             '--convert-to',
