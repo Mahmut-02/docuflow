@@ -37,7 +37,8 @@ class ConvertWordToPdfJob implements ShouldQueue
         // 2. LibreOffice headless komutunu hazırla
         // Bu komut arayüz açmadan terminalden word'ü pdf'e çevirir
         $process = new Process([
-            'soffice',
+            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+            '-env:UserInstallation=file:///tmp/LibreOffice_Conversion_' . $this->conversion->id, // <-- Mac'te kilitlenmeyi önleyen sihirli satır
             '--headless',
             '--convert-to',
             'pdf',
@@ -47,21 +48,29 @@ class ConvertWordToPdfJob implements ShouldQueue
         ]);
 
         try {
-            $process->mustRun();
+            // İşlemi çalıştır
+            $process->run();
 
-            // Dönüşen dosyanın yeni adını bul (ornek.docx -> ornek.pdf)
-            $filenameWithoutExt = pathinfo($this->conversion->original_filename, PATHINFO_FILENAME);
+            // Eğer motor hata verirse süreci durdur ve hatayı fırlat
+            if (!$process->isSuccessful()) {
+                $errorMsg = $process->getErrorOutput();
+                \Illuminate\Support\Facades\Log::error('LibreOffice Hatası: ' . $errorMsg);
+                throw new \Exception('LibreOffice Hatası: ' . $errorMsg);
+            }
+
+            // Başarılıysa dosya adını bul
+            $filenameWithoutExt = pathinfo($this->conversion->original_path, PATHINFO_FILENAME);
             $convertedFilename = $filenameWithoutExt . '.pdf';
             $relativeConvertedPath = 'documents/converted/' . $convertedFilename;
 
-            // 3. Başarılı olduysa veritabanını güncelle
+            // Veritabanını completed olarak güncelle
             $this->conversion->update([
                 'status' => 'completed',
                 'converted_path' => $relativeConvertedPath,
             ]);
 
-        } catch (ProcessFailedException $exception) {
-            // 4. Hata aldıysa durumu failed yap ve hata mesajını yaz
+        } catch (\Throwable $exception) {
+            // Herhangi bir hata durumunda veritabanını failed olarak güncelle
             $this->conversion->update([
                 'status' => 'failed',
                 'error_message' => $exception->getMessage(),

@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('conversions', function (Blueprint $table) {
             $table->id();
+            $table->string('original_filename');
+            $table->string('original_path');
+            $table->string('converted_path')->nullable();
+            $table->string('type')->default('word_to_pdf');
+            $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+            $table->text('error_message')->nullable();
             $table->timestamps();
         });
     }
