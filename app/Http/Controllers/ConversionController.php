@@ -21,6 +21,11 @@ class ConversionController extends Controller
         // 1. Doğrulama: Gerçekten bir dosya geldi mi ve uzantısı docx mi? (En fazla 10MB)
         $request->validate([
             'document' => 'required|file|mimes:doc,docx|max:10240',
+        ], [
+            'document.required' => 'Lütfen dönüştürmek için bir Word dosyası seçin.',
+            'document.file'     => 'Yüklenen veri geçerli bir dosya değil.',
+            'document.mimes'    => 'Hata: Sadece .doc ve .docx uzantılı Word dosyaları yükleyebilirsiniz.',
+            'document.max'      => 'Dosya boyutu çok büyük. En fazla 10 MB boyutunda dosya yükleyebilirsiniz.',
         ]);
 
         $file = $request->file('document');
