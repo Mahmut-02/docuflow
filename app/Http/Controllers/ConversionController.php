@@ -47,6 +47,7 @@ class ConversionController extends Controller
     {
         $conversion = Conversion::findOrFail($id);
 
+
         // Dosya henüz hazır değilse veya hata aldıysa
         if ($conversion->status !== 'completed' || !$conversion->converted_path) {
             return redirect()->back()->withErrors(['Dosyanız henüz dönüştürülüyor veya bir hata oluştu. Lütfen 3-5 saniye bekleyip tekrar deneyin.']);
@@ -55,5 +56,14 @@ class ConversionController extends Controller
         // Hazırsa indir (İndirilen dosyanın adını orjinal dosya adı yapıyoruz)
         $downloadName = pathinfo($conversion->original_filename, PATHINFO_FILENAME) . '.pdf';
         return Storage::download($conversion->converted_path, $downloadName);
+    }
+
+    public function status($id)
+    {
+        $conversion = \App\Models\Conversion::findOrFail($id);
+
+        return response()->json([
+            'status' => $conversion->status
+        ]);
     }
 }

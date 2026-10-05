@@ -27,31 +27,69 @@
 
 <!-- Bildirim / Alert Alanı -->
 <div class="max-w-2xl mx-auto px-4 w-full mt-6">
-    @if(session('success'))
-        <div class="p-4 mb-4 text-sm text-emerald-800 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-            <div class="flex items-center gap-2">
-                <i class="ph ph-check-circle text-xl"></i>
-                <span class="font-medium">{{ session('success') }}</span>
+    @if(session('conversion_id'))
+        <div id="status-card" class="p-4 mb-4 text-sm rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm bg-indigo-50 text-indigo-800 border-indigo-200 transition-all duration-500">
+            <div class="flex items-center gap-3">
+                <i id="status-icon" class="ph ph-spinner animate-spin text-2xl"></i>
+                <span id="status-text" class="font-medium text-base">Belgeniz PDF'e dönüştürülüyor, lütfen bekleyin...</span>
             </div>
 
-            @if(session('conversion_id'))
-                <a href="{{ route('convert.download', session('conversion_id')) }}" class="whitespace-nowrap flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-semibold transition shadow-sm">
-                    <i class="ph ph-download-simple text-lg"></i>
-                    <span>PDF'i İndir</span>
-                </a>
-            @endif
+            <!-- Buton başlangıçta gizli (hidden) olarak geliyor -->
+            <a id="download-btn" href="{{ route('convert.download', session('conversion_id')) }}" class="hidden whitespace-nowrap flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-semibold shadow-md transition-transform transform hover:scale-105">
+                <i class="ph ph-download-simple text-xl"></i>
+                <span>PDF'i İndir</span>
+            </a>
         </div>
+
+        <!-- Canlı Durum Takibi (Polling) Scripti -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const conversionId = "{{ session('conversion_id') }}";
+                const statusCard = document.getElementById('status-card');
+                const statusIcon = document.getElementById('status-icon');
+                const statusText = document.getElementById('status-text');
+                const downloadBtn = document.getElementById('download-btn');
+
+                // Her 2 saniyede bir veritabanına sor
+                let pollInterval = setInterval(() => {
+                    fetch(`/status/${conversionId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'completed') {
+                                clearInterval(pollInterval); // Sormayı bırak
+
+                                // Arayüzü Yeşil (Başarılı) Temaya Çevir
+                                statusCard.className = "p-4 mb-4 text-sm rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm bg-emerald-50 text-emerald-800 border-emerald-200 transition-all duration-500";
+                                statusIcon.className = "ph ph-check-circle text-2xl";
+                                statusText.innerText = "Dönüştürme başarıyla tamamlandı!";
+
+                                // İndirme butonunu göster
+                                downloadBtn.classList.remove('hidden');
+                            } else if (data.status === 'failed') {
+                                clearInterval(pollInterval); // Sormayı bırak
+
+                                // Arayüzü Kırmızı (Hatalı) Temaya Çevir
+                                statusCard.className = "p-4 mb-4 text-sm rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm bg-rose-50 text-rose-800 border-rose-200 transition-all duration-500";
+                                statusIcon.className = "ph ph-warning-circle text-2xl";
+                                statusText.innerText = "Dönüştürme sırasında bir hata oluştu!";
+                            }
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }, 2000); // 2000 milisaniye = 2 saniye
+            });
+        </script>
     @endif
 
-    @if($errors->any())
-        <div class="p-4 mb-4 text-sm text-rose-800 rounded-xl bg-rose-50 border border-rose-200">
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        <!-- Standart Hata Mesajları -->
+        @if($errors->any())
+            <div class="p-4 mb-4 text-sm text-rose-800 rounded-xl bg-rose-50 border border-rose-200 shadow-sm">
+                <ul class="list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 </div>
 
 <!-- Dinamik İçerik (welcome.blade.php buraya oturacak) -->

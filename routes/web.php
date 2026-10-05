@@ -11,3 +11,5 @@ Route::post('/convert/word-to-pdf', [ConversionController::class, 'convertWordTo
 
 // PDF İndirme rotası
 Route::get('/download/{id}', [ConversionController::class, 'download'])->name('convert.download');
+
+Route::get('/status/{id}', [App\Http\Controllers\ConversionController::class, 'status']);
