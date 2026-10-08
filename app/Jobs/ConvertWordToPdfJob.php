@@ -82,4 +82,15 @@ class ConvertWordToPdfJob implements ShouldQueue
             ]);
         }
     }
+
+    /**
+     * İşlem herhangi bir nedenden (dosya yok, zaman aşımı, çökme) başarısız olursa çalışır.
+     */
+    public function failed(\Throwable $exception)
+    {
+        // Veritabanındaki durumu 'failed' (Başarısız) olarak güncelle
+        $this->conversion->update([
+            'status' => 'failed'
+        ]);
+    }
 }

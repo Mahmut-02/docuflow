@@ -12,9 +12,12 @@ class ConversionController extends Controller
     // Ana sayfayı ve yükleme formunu gösterir
     public function index()
     {
-        return view('welcome');
-    }
+        // Veritabanından en yeni 5 dönüştürme işlemini çekiyoruz
+        $conversions = \App\Models\Conversion::latest()->take(5)->get();
 
+        // Veriyi 'welcome' blade dosyasına gönderiyoruz
+        return view('welcome', compact('conversions'));
+    }
     // Dosyayı karşılar ve kaydeder
     public function convertWordToPdf(Request $request)
     {
@@ -70,5 +73,24 @@ class ConversionController extends Controller
         return response()->json([
             'status' => $conversion->status
         ]);
+    }
+
+    // Kaydı ve sunucudaki dosyaları manuel siler
+    public function destroy($id)
+    {
+        $conversion = \App\Models\Conversion::findOrFail($id);
+
+        // Eğer sunucuda hala dosya duruyorsa fiziksel olarak da sil
+        if ($conversion->original_path && \Illuminate\Support\Facades\Storage::exists($conversion->original_path)) {
+            \Illuminate\Support\Facades\Storage::delete($conversion->original_path);
+        }
+        if ($conversion->converted_path && \Illuminate\Support\Facades\Storage::exists($conversion->converted_path)) {
+            \Illuminate\Support\Facades\Storage::delete($conversion->converted_path);
+        }
+
+        // Veritabanındaki satırı sil
+        $conversion->delete();
+
+        return back(); // Sayfayı yenile
     }
 }
