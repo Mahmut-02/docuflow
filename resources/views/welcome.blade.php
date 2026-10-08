@@ -17,12 +17,24 @@
             <form action="{{ route('convert.word_to_pdf') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
-                <!-- Dosya Seçim Alanı -->
-                <div>
-                    <label for="document" class="block text-sm font-medium text-slate-700 mb-2">Belge Seçin</label>
-                    <div class="border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-xl p-6 text-center transition cursor-pointer bg-slate-50/50">
-                        <input type="file" name="document" id="document" accept=".doc,.docx" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer" />
-                        <p class="text-xs text-slate-400 mt-2">Maksimum dosya boyutu: 10 MB (.docx, .doc)</p>
+                <!-- Sürükle-Bırak Alanı -->
+                <div id="dropzone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-10 text-center hover:bg-gray-50 transition cursor-pointer flex flex-col items-center justify-center gap-3">
+                    <!-- Gizli dosya inputu -->
+                    <input type="file" name="document" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".doc,.docx" required>
+
+                    <!-- İkon -->
+                    <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+
+                    <!-- Metin -->
+                    <p class="text-gray-600 font-medium"><span class="text-blue-600 font-semibold">Dosya Seç</span> veya buraya sürükleyin</p>
+                    <p class="text-sm text-gray-400">Sadece .doc ve .docx (Maks 10MB)</p>
+
+                    <!-- Seçilen dosya adının belireceği rozet -->
+                    <div id="fileNameDisplay" class="hidden mt-4 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path></svg>
+                        <span id="fileNameText"></span>
                     </div>
                 </div>
 
@@ -85,7 +97,55 @@
                     </table>
                 </div>
             </div>
+
         @endif
 
     </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileNameText = document.getElementById('fileNameText');
+
+        // Tarayıcının varsayılan olarak dosyayı yeni sekmede açmasını engeller
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Sürükleme sırasında mavi çerçeve animasyonu
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('border-blue-500', 'bg-blue-50'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+            dropzone.addEventListener(eventName, () => dropzone.classList.remove('border-blue-500', 'bg-blue-50'), false);
+        });
+
+        // Dosya bırakıldığında input'a aktarma
+        dropzone.addEventListener('drop', (e) => {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+
+            // Sürüklenen dosyayı gizli inputa ata
+            fileInput.files = files;
+            updateFileName(files[0].name);
+        });
+
+        // Butona basıp klasik yöntemle seçildiğinde
+        fileInput.addEventListener('change', function() {
+            if(this.files && this.files.length > 0) {
+                updateFileName(this.files[0].name);
+            }
+        });
+
+        // Ekranda dosya adını gösteren fonksiyon
+        function updateFileName(name) {
+            fileNameText.textContent = name;
+            fileNameDisplay.classList.remove('hidden');
+        }
+    </script>
 @endsection
