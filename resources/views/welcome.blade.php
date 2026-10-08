@@ -50,7 +50,7 @@
         @if($conversions->isNotEmpty())
             <div class="mt-12 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Son Dönüştürmeler</h3>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-72 overflow-y-auto pr-1">
                     <table class="w-full text-left border-collapse">
                         <thead>
                         <tr class="text-sm text-gray-400 border-b border-gray-100">

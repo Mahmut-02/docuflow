@@ -12,10 +12,9 @@ class ConversionController extends Controller
     // Ana sayfayı ve yükleme formunu gösterir
     public function index()
     {
-        // Veritabanından en yeni 5 dönüştürme işlemini çekiyoruz
-        $conversions = \App\Models\Conversion::latest()->take(5)->get();
+        // Veritabanınıda en yeni 15 dosyayı çekelim, scroll ile gezilebilsin:
+        $conversions = \App\Models\Conversion::latest()->take(15)->get();
 
-        // Veriyi 'welcome' blade dosyasına gönderiyoruz
         return view('welcome', compact('conversions'));
     }
     // Dosyayı karşılar ve kaydeder
