@@ -22,3 +22,8 @@ Route::delete('/conversion/{id}', [App\Http\Controllers\ConversionController::cl
 // Araçlar Menüsü ve PDF Birleştirme Rotaları
 Route::get('/tools/merge-pdf', [App\Http\Controllers\ToolController::class, 'mergePdfView'])->name('tools.merge.view');
 Route::post('/tools/merge-pdf', [App\Http\Controllers\ToolController::class, 'mergePdfProcess'])->name('tools.merge.process');
+
+
+// Görselden PDF'e Aracı
+Route::get('/tools/image-to-pdf', [App\Http\Controllers\ToolController::class, 'imageToPdfView'])->name('tools.image.view');
+Route::post('/tools/image-to-pdf', [App\Http\Controllers\ToolController::class, 'imageToPdfProcess'])->name('tools.image.process');

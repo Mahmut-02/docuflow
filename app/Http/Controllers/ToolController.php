@@ -43,4 +43,50 @@ class ToolController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
+
+    // 3. Görselden PDF'e sayfasının arayüzünü gösterir
+    public function imageToPdfView()
+    {
+        return view('tools.image-to-pdf');
+    }
+
+    // 4. Yüklenen görselleri tek bir PDF'te toplar
+    public function imageToPdfProcess(Request $request)
+    {
+        $request->validate([
+            'images'   => 'required|array|min:1',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg|max:5120', // Maksimum 5MB
+        ], [
+            'images.required'   => 'Lütfen en az bir görsel seçin.',
+            'images.*.image'    => 'Yüklenen dosyalardan biri geçerli bir resim değil.',
+            'images.*.mimes'    => 'Sadece JPG, JPEG ve PNG formatları desteklenmektedir.',
+            'images.*.max'      => 'Görsellerin her biri en fazla 5MB boyutunda olabilir.',
+        ]);
+
+        // Tüm görselleri tutacağımız HTML şablonunu hazırlıyoruz
+        // CSS ile her resmin yeni bir sayfada ve tam boyutta görünmesini sağlıyoruz
+        $html = '<style>
+                    body { margin: 0; padding: 0; }
+                    .page { page-break-after: always; text-align: center; }
+                    img { max-width: 100%; max-height: 100%; object-fit: contain; }
+                 </style>';
+
+        foreach ($request->file('images') as $file) {
+            // Görseli Base64'e çeviriyoruz (PDF motorunun dosyayı sorunsuz okuması için en güvenli yöntem)
+            $extension = $file->getClientOriginalExtension();
+            $base64 = base64_encode(file_get_contents($file));
+            $imageSrc = 'data:image/' . $extension . ';base64,' . $base64;
+
+            $html .= '<div class="page"><img src="' . $imageSrc . '"></div>';
+        }
+
+        // DomPDF motorunu çalıştır ve PDF'i A4 dikey (portrait) formatında oluştur
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)->setPaper('a4', 'portrait');
+
+        $fileName = 'DocuFlow_Images_' . time() . '.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+
 }

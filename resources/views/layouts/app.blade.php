@@ -34,6 +34,7 @@
                     <div class="p-2 flex flex-col gap-1">
                         <a href="/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Word'den PDF'e</a>
                         <a href="{{ route('tools.merge.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">PDF Birleştir</a>
+                        <a href="{{ route('tools.image.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Görselden PDF'e</a>
                     </div>
                 </div>
             </div>
