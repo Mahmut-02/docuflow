@@ -27,3 +27,7 @@ Route::post('/tools/merge-pdf', [App\Http\Controllers\ToolController::class, 'me
 // Görselden PDF'e Aracı
 Route::get('/tools/image-to-pdf', [App\Http\Controllers\ToolController::class, 'imageToPdfView'])->name('tools.image.view');
 Route::post('/tools/image-to-pdf', [App\Http\Controllers\ToolController::class, 'imageToPdfProcess'])->name('tools.image.process');
+
+// PDF Şifreleme Aracı
+Route::get('/tools/protect-pdf', [App\Http\Controllers\ToolController::class, 'protectPdfView'])->name('tools.protect.view');
+Route::post('/tools/protect-pdf', [App\Http\Controllers\ToolController::class, 'protectPdfProcess'])->name('tools.protect.process');

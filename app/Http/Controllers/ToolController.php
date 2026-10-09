@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use iio\libmergepdf\Merger;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Storage;
 
 class ToolController extends Controller
 {
@@ -88,5 +90,65 @@ class ToolController extends Controller
         return $pdf->download($fileName);
     }
 
+    // 5. PDF Şifreleme sayfasının arayüzünü gösterir
+    public function protectPdfView()
+    {
+        return view('tools.protect-pdf');
+    }
+
+    // 6. Yüklenen PDF'e QPDF motoru ile 256-bit şifre koyar
+    public function protectPdfProcess(Request $request)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf|max:15360', // Maks 15MB
+            'password' => 'required|string|min:4|max:32',
+        ], [
+            'document.required' => 'Lütfen şifrelenecek bir PDF dosyası seçin.',
+            'document.mimes'    => 'Sadece PDF dosyaları yükleyebilirsiniz.',
+            'password.required' => 'Lütfen belgeyi kilitlemek için bir şifre belirleyin.',
+            'password.min'      => 'Şifre en az 4 karakter olmalıdır.',
+        ]);
+
+        $file = $request->file('document');
+        $password = $request->input('password');
+
+        // Orijinal dosya adını al (Uzantısız)
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        // Dosyayı geçici olarak storage'a kaydet
+        $inputPath = $file->store('documents/temp');
+        $fullInputPath = Storage::path($inputPath); // <-- Laravel akıllıca doğru yolu (private dahil) bulur
+
+        // Çıktı (Şifreli) dosyasının yolu ve adı
+        $outputName = $originalName . '_protected.pdf';
+        $outputPath = 'documents/temp/' . $outputName;
+        $fullOutputPath = Storage::path($outputPath); // <-- Çıktı için de aynısı
+
+        // QPDF Komutunu Hazırla (256-bit AES şifreleme)
+        $process = new Process([
+            '/opt/homebrew/bin/qpdf',
+            '--encrypt',
+            $password, // Kullanıcı şifresi (Açmak için)
+            $password, // Sahip şifresi (Düzenlemeyi engellemek için)
+            '256',     // 256-bit şifreleme gücü
+            '--',
+            $fullInputPath,
+            $fullOutputPath
+        ]);
+
+        $process->run();
+
+        // Eğer QPDF hata verirse geçici dosyayı sil ve gerçek hatayı ekrana bas
+        if (!$process->isSuccessful()) {
+            Storage::delete($inputPath);
+            return back()->withErrors(['Hata' => 'QPDF Motoru Hatası: ' . $process->getErrorOutput()]);
+        }
+
+        // İşlem başarılıysa orijinal (şifresiz) dosyayı sunucudan hemen sil
+        Storage::delete($inputPath);
+
+        // Şifreli dosyayı kullanıcıya indir ve indirme biter bitmez sunucudan sil (deleteFileAfterSend)
+        return response()->download($fullOutputPath)->deleteFileAfterSend(true);
+    }
 
 }
