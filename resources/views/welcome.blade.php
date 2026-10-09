@@ -147,5 +147,30 @@
             fileNameText.textContent = name;
             fileNameDisplay.classList.remove('hidden');
         }
+
+        // Tabloyu sayfa yenilemeden arka planda sessizce güncelleyen kod
+        document.addEventListener("DOMContentLoaded", function() {
+            const checkInterval = setInterval(() => {
+                // Ekranda İşleniyor yazısı varsa arka planda kontrol et
+                if (document.body.innerHTML.includes('İşleniyor...')) {
+                    fetch(window.location.href)
+                        .then(response => response.text())
+                        .then(html => {
+                            // Gelen yeni sayfanın sadece tablosunu al ve mevcut tabloyla değiştir
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTable = doc.querySelector('table');
+                            const oldTable = document.querySelector('table');
+
+                            if (newTable && oldTable) {
+                                oldTable.innerHTML = newTable.innerHTML;
+                            }
+                        });
+                } else {
+                    // İşleniyor yazısı kalmadıysa kontrolü durdur (sistemi yormamak için)
+                    clearInterval(checkInterval);
+                }
+            }, 2500); // 2.5 saniyede bir sessizce kontrol eder
+        });
     </script>
 @endsection
