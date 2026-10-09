@@ -20,7 +20,23 @@
         </a>
         <nav class="flex items-center gap-6 text-sm font-medium text-slate-600">
             <a href="/" class="hover:text-indigo-600 transition">Ana Sayfa</a>
-            <a href="{{ route('tools.merge.view') }}" class="hover:text-indigo-600 transition">Araçlar</a>
+
+            <!-- Araçlar Açılır Menüsü (Dropdown) -->
+            <div class="relative group">
+                <button class="flex items-center gap-1 hover:text-indigo-600 transition font-medium focus:outline-none py-2">
+                    Araçlar
+                    <!-- Aşağı Ok İkonu -->
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Menü İçeriği (Fare üzerine gelince görünür) -->
+                <div class="absolute right-0 top-full mt-0 w-48 bg-white border border-slate-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div class="p-2 flex flex-col gap-1">
+                        <a href="/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Word'den PDF'e</a>
+                        <a href="{{ route('tools.merge.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">PDF Birleştir</a>
+                    </div>
+                </div>
+            </div>
         </nav>
     </div>
 </header>
