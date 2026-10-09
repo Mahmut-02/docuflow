@@ -17,3 +17,8 @@ Route::get('/status/{id}', [App\Http\Controllers\ConversionController::class, 's
 
 // Dosya ve kayıt silme rotası
 Route::delete('/conversion/{id}', [App\Http\Controllers\ConversionController::class, 'destroy'])->name('convert.destroy');
+
+
+// Araçlar Menüsü ve PDF Birleştirme Rotaları
+Route::get('/tools/merge-pdf', [App\Http\Controllers\ToolController::class, 'mergePdfView'])->name('tools.merge.view');
+Route::post('/tools/merge-pdf', [App\Http\Controllers\ToolController::class, 'mergePdfProcess'])->name('tools.merge.process');

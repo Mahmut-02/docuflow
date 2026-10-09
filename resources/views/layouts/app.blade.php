@@ -20,7 +20,7 @@
         </a>
         <nav class="flex items-center gap-6 text-sm font-medium text-slate-600">
             <a href="/" class="hover:text-indigo-600 transition">Ana Sayfa</a>
-            <a href="#tools" class="hover:text-indigo-600 transition">Araçlar</a>
+            <a href="{{ route('tools.merge.view') }}" class="hover:text-indigo-600 transition">Araçlar</a>
         </nav>
     </div>
 </header>
