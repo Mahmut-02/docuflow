@@ -32,7 +32,7 @@
                 <!-- Menü İçeriği (Fare üzerine gelince görünür) -->
                 <div class="absolute right-0 top-full mt-0 w-48 bg-white border border-slate-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div class="p-2 flex flex-col gap-1">
-                        <a href="/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Word'den PDF'e</a>
+                        <a href="/tools/word-to-pdf" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Word'den PDF'e</a>
                         <a href="{{ route('tools.merge.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">PDF Birleştir</a>
                         <a href="{{ route('tools.image.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">Görselden PDF'e</a>
                         <a href="{{ route('tools.protect.view') }}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">PDF Şifrele</a>
@@ -98,19 +98,10 @@
         </script>
     @endif
 
-        <!-- Standart Hata Mesajları -->
-        @if($errors->any())
-            <div class="p-4 mb-4 text-sm text-rose-800 rounded-xl bg-rose-50 border border-rose-200 shadow-sm">
-                <ul class="list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+
 </div>
 
-<!-- Dinamik İçerik (welcome.blade.php buraya oturacak) -->
+<!-- Dinamik İçerik (word.blade.php buraya oturacak) -->
 <main class="flex-1 max-w-6xl mx-auto px-4 w-full py-4">
     @yield('content')
 </main>

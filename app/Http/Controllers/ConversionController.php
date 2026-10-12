@@ -15,7 +15,7 @@ class ConversionController extends Controller
         // Veritabanınıda en yeni 15 dosyayı çekelim, scroll ile gezilebilsin:
         $conversions = \App\Models\Conversion::latest()->take(15)->get();
 
-        return view('welcome', compact('conversions'));
+        return view('tools.word', compact('conversions'));
     }
     // Dosyayı karşılar ve kaydeder
     public function convertWordToPdf(Request $request)
